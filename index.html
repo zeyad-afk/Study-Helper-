@@ -1,0 +1,1940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Study Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=Caveat:wght@500;600&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0908;
+    --bg-panel:#131110;
+    --bg-panel-2:#1b1815;
+    --line:rgba(255,255,255,0.08);
+    --line-strong:rgba(255,255,255,0.16);
+    --white:#f4f1ec;
+    --dim:#8f897f;
+    --dimmer:#5c574f;
+    --red:#ff4b26;
+    --red-bright:#ff7a52;
+    --red-dim:#a8341a;
+    --red-glow:rgba(255,75,38,0.35);
+  }
+
+  *{ box-sizing:border-box; }
+
+  html,body{ margin:0; padding:0; background:var(--bg); color:var(--white); }
+
+  body{
+    font-family:'Space Grotesk', sans-serif;
+    position:relative;
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:0;
+    opacity:0.5;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+  }
+
+  body::after{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:0;
+    background:
+      repeating-linear-gradient(90deg, var(--line) 0px, var(--line) 1px, transparent 1px, transparent calc(20% - 1px));
+    opacity:0.5;
+  }
+
+  a{ color:inherit; }
+  button{ font-family:inherit; }
+  input{ font-family:inherit; }
+  ::selection{ background:var(--red); color:var(--bg); }
+  :focus-visible{ outline:2px solid var(--red-bright); outline-offset:3px; }
+
+  .wrap{ position:relative; z-index:1; max-width:1180px; margin:0 auto; padding:0 5vw; }
+
+  /* ---------------- NAV ---------------- */
+  .nav{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:2.2rem 0 1.4rem;
+    border-bottom:1px solid var(--line);
+    gap:1rem;
+    flex-wrap:wrap;
+  }
+  .brand{ display:flex; align-items:center; gap:0.7rem; }
+  .brand svg{ width:30px; height:30px; }
+  .brand .word{ font-size:1.05rem; font-weight:600; line-height:1.05; }
+  .brand .word small{ display:block; font-size:0.6rem; letter-spacing:0.22em; color:var(--dim); font-weight:500; }
+
+  .nav-index{ display:flex; gap:2.4rem; }
+  .nav-index .item{ font-size:0.72rem; color:var(--dim); max-width:96px; }
+  .nav-index .item b{ display:block; color:var(--red); font-family:'JetBrains Mono', monospace; font-size:0.68rem; margin-bottom:0.3rem; }
+  @media (max-width:920px){ .nav-index{ display:none; } }
+
+  .nav-dot{
+    width:44px; height:44px; border-radius:50%;
+    background:var(--red);
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+    box-shadow:0 0 24px var(--red-glow);
+    border:none;
+  }
+  .nav-dot svg{ width:18px; height:18px; }
+
+  .nav-right{ display:flex; align-items:center; gap:0.7rem; flex-shrink:0; }
+
+  .nav-link-btn{
+    height:44px;
+    padding:0 1.1rem;
+    border-radius:999px;
+    background:none;
+    border:1px solid var(--line-strong);
+    color:var(--dim);
+    display:flex; align-items:center; gap:0.5rem;
+    cursor:pointer;
+    font-size:0.8rem;
+    transition:all 0.2s ease;
+    flex-shrink:0;
+  }
+  .nav-link-btn svg{ width:15px; height:15px; }
+  .nav-link-btn:hover{ border-color:var(--red); color:var(--red-bright); }
+  .nav-link-btn.is-active{ border-color:var(--red); color:var(--red-bright); background:rgba(255,75,38,0.08); }
+
+  .reset-all-btn{
+    width:44px; height:44px; border-radius:50%;
+    background:none;
+    border:1px solid var(--line-strong);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    flex-shrink:0;
+    transition:border-color 0.2s ease;
+  }
+  .reset-all-btn svg{ width:16px; height:16px; stroke:var(--dim); transition:stroke 0.2s ease; }
+  .reset-all-btn:hover{ border-color:var(--red); }
+  .reset-all-btn:hover svg{ stroke:var(--red-bright); }
+
+  /* ---------------- HERO ---------------- */
+  .hero{ padding:5.5rem 0 4rem; position:relative; }
+
+  .eyebrow-row{
+    display:flex; align-items:center; gap:0.8rem;
+    margin-bottom:1.6rem;
+  }
+  .eyebrow-row .rule{ width:34px; height:1px; background:var(--red); }
+  .eyebrow-row span{ font-family:'JetBrains Mono', monospace; font-size:0.7rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--dim); }
+
+  h1.headline{
+    margin:0;
+    font-weight:500;
+    line-height:0.98;
+    font-size:clamp(2.4rem, 6.6vw, 5.1rem);
+  }
+  h1.headline .thin{
+    font-family:'Fraunces', serif;
+    font-weight:300;
+    font-style:normal;
+    text-transform:uppercase;
+    letter-spacing:0.01em;
+    color:var(--white);
+  }
+  h1.headline .bold{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    color:var(--white);
+  }
+  h1.headline .accent{
+    font-family:'Caveat', cursive;
+    color:var(--red-bright);
+    font-size:0.42em;
+    display:inline-block;
+    transform:rotate(-6deg);
+    margin:0 0.15em;
+    vertical-align:middle;
+  }
+
+  .hero-lower{
+    margin-top:3rem;
+    display:flex;
+    align-items:center;
+    gap:3rem;
+    flex-wrap:wrap;
+  }
+
+  .badge{
+    position:relative;
+    width:132px; height:132px;
+    flex-shrink:0;
+  }
+  .badge .spin{
+    animation:spin 16s linear infinite;
+    transform-origin:50% 50%;
+  }
+  @media (prefers-reduced-motion:reduce){ .badge .spin{ animation:none; } }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  .badge .center-ic{ width:26px; height:26px; }
+
+  .hero-copy{ max-width:340px; }
+  .hero-copy p{ margin:0; color:var(--dim); font-size:0.92rem; line-height:1.6; }
+
+  .hero-meta{
+    margin-left:auto;
+    display:flex;
+    align-items:flex-start;
+    gap:2.4rem;
+    flex-wrap:wrap;
+  }
+  .hero-meta .col b{
+    display:block;
+    font-size:0.66rem;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--red);
+    margin-bottom:0.5rem;
+  }
+  .hero-meta .col span{ font-size:0.86rem; color:var(--white); line-height:1.5; display:block; }
+
+  .legend{ display:flex; gap:0.5rem; margin-top:0.6rem; }
+  .legend i{ width:9px; height:9px; border-radius:50%; display:inline-block; background:var(--red); opacity:0.35; }
+
+  .see-below{
+    display:flex; align-items:center; gap:0.5rem;
+    margin-top:2.6rem;
+    background:none; border:none; cursor:pointer;
+    color:var(--dim);
+    font-size:0.78rem;
+    letter-spacing:0.02em;
+  }
+  .see-below:hover{ color:var(--white); }
+  .see-below svg{ width:12px; height:12px; }
+
+  /* ---------------- TOPIC LIST (page 1) ---------------- */
+  .topics{
+    padding:1rem 0 6rem;
+    display:flex;
+    flex-direction:column;
+  }
+
+  .topic-row{
+    position:relative;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    align-items:stretch;
+    gap:0;
+    border-top:1px solid var(--line);
+    cursor:pointer;
+    background:none;
+    border-left:none; border-right:none; border-bottom:none;
+    text-align:left;
+    color:inherit;
+    padding:0;
+    transition:background 0.25s ease;
+  }
+  .topic-row:last-child{ border-bottom:1px solid var(--line); }
+  .topic-row:hover{ background:rgba(255,255,255,0.02); }
+  .topic-row:hover .topic-visual svg .accent-stroke{ stroke:var(--red-bright); }
+  .topic-row:hover .view-ring{ border-color:var(--red-bright); }
+
+  .topic-delete{
+    position:absolute;
+    top:14px; left:14px;
+    width:26px; height:26px;
+    border-radius:50%;
+    border:1px solid var(--line-strong);
+    background:var(--bg);
+    color:var(--dim);
+    display:flex; align-items:center; justify-content:center;
+    opacity:0;
+    transition:opacity 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    z-index:2;
+    cursor:pointer;
+  }
+  .topic-row:hover .topic-delete{ opacity:1; }
+  .topic-delete:hover{ border-color:var(--red); color:var(--red-bright); }
+  .topic-delete svg{ width:12px; height:12px; }
+
+  .topic-text{
+    padding:2.6rem 2.4rem 2.6rem 0;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    gap:0.9rem;
+  }
+
+  .topic-idx-row{ display:flex; align-items:center; gap:0.7rem; }
+  .topic-idx{ font-family:'JetBrains Mono', monospace; font-size:0.72rem; color:var(--red); }
+  .topic-date{ font-family:'JetBrains Mono', monospace; font-size:0.72rem; color:var(--dimmer); }
+
+  .topic-code{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:clamp(1.7rem, 3vw, 2.3rem);
+    letter-spacing:-0.01em;
+  }
+
+  .topic-name{
+    font-family:'Fraunces', serif;
+    font-weight:400;
+    font-style:italic;
+    color:var(--dim);
+    font-size:1rem;
+  }
+
+  .topic-progress{
+    display:flex;
+    align-items:center;
+    gap:0.7rem;
+    margin-top:0.3rem;
+  }
+  .topic-progress .track{ width:120px; height:4px; background:var(--bg-panel-2); border-radius:2px; overflow:hidden; }
+  .topic-progress .fill{ height:100%; background:var(--red); width:0%; transition:width 0.4s ease; }
+  .topic-progress .lbl{ font-family:'JetBrains Mono', monospace; font-size:0.68rem; color:var(--dim); }
+
+  .topic-visual{
+    position:relative;
+    min-height:190px;
+    background:var(--bg-panel);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+  }
+  .topic-visual::before{
+    content:"";
+    position:absolute; inset:0;
+    background-image:
+      repeating-linear-gradient(0deg, var(--line) 0, var(--line) 1px, transparent 1px, transparent 26px),
+      repeating-linear-gradient(90deg, var(--line) 0, var(--line) 1px, transparent 1px, transparent 26px);
+    opacity:0.5;
+  }
+  .topic-visual svg{ position:relative; width:72%; height:72%; }
+  .topic-visual .accent-stroke{ stroke:var(--red); transition:stroke 0.25s ease; }
+
+  .view-ring{
+    position:absolute;
+    right:16px; bottom:16px;
+    width:58px; height:58px;
+    border-radius:50%;
+    border:1px dashed var(--line-strong);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.6rem;
+    letter-spacing:0.05em;
+    color:var(--dim);
+    transition:border-color 0.25s ease;
+  }
+
+  /* add-topic tile */
+  .add-topic-row{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:0.9rem;
+    padding:2.2rem 0;
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+    background:none;
+    cursor:pointer;
+    color:var(--dim);
+    margin-top:-1px;
+    transition:all 0.2s ease;
+  }
+  .add-topic-row:hover{ color:var(--red-bright); background:rgba(255,75,38,0.04); }
+  .add-topic-row .plus-circle{
+    width:34px; height:34px;
+    border-radius:50%;
+    border:1px dashed var(--line-strong);
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+    transition:border-color 0.2s ease;
+  }
+  .add-topic-row:hover .plus-circle{ border-color:var(--red-bright); }
+  .add-topic-row .plus-circle svg{ width:14px; height:14px; }
+  .add-topic-row span{ font-size:0.86rem; }
+
+  @media (max-width:760px){
+    .topic-row{ grid-template-columns:1fr; }
+    .topic-visual{ order:-1; min-height:160px; }
+    .topic-text{ padding:1.8rem 0; }
+  }
+
+  .footer-note{
+    text-align:center;
+    color:var(--dimmer);
+    font-size:0.72rem;
+    padding-bottom:3rem;
+  }
+
+  /* ---------------- MODAL ---------------- */
+  .modal-overlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.65);
+    z-index:50;
+    align-items:center;
+    justify-content:center;
+    padding:1.4rem;
+  }
+  .modal-overlay.is-open{ display:flex; }
+  .modal-card{
+    width:100%;
+    max-width:420px;
+    background:var(--bg-panel);
+    border:1px solid var(--line-strong);
+    border-left:2px solid var(--red);
+    border-radius:2px;
+    padding:2rem;
+  }
+  .modal-card h3{
+    margin:0 0 0.4rem;
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:1.2rem;
+  }
+  .modal-card p.hint{ margin:0 0 1.4rem; color:var(--dim); font-size:0.82rem; }
+  .modal-field{ margin-bottom:1.1rem; }
+  .modal-field label{
+    display:block;
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.66rem;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--red);
+    margin-bottom:0.5rem;
+  }
+  .modal-field input{
+    width:100%;
+    background:var(--bg);
+    border:1px solid var(--line-strong);
+    border-radius:2px;
+    padding:0.7rem 0.8rem;
+    color:var(--white);
+    font-size:0.94rem;
+    outline:none;
+  }
+  .modal-field input:focus{ border-color:var(--red); }
+  .modal-actions{ display:flex; justify-content:flex-end; gap:0.9rem; margin-top:1.6rem; }
+  .modal-error{ color:var(--red-bright); font-size:0.78rem; min-height:1.1em; margin-top:-0.4rem; margin-bottom:0.8rem; }
+
+  /* ---------------- TIMETABLE ---------------- */
+  #page-timetable{ display:none; }
+
+  .tt-toolbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:1rem;
+    padding:2rem 0 1rem;
+  }
+  .tt-toolbar-actions{ display:flex; gap:0.7rem; flex-wrap:wrap; }
+  .tt-btn{
+    border:1px solid var(--line-strong);
+    background:none;
+    color:var(--white);
+    border-radius:999px;
+    padding:0.55rem 1.2rem;
+    font-size:0.78rem;
+    cursor:pointer;
+    display:flex; align-items:center; gap:0.5rem;
+    transition:all 0.2s ease;
+  }
+  .tt-btn svg{ width:14px; height:14px; }
+  .tt-btn:hover{ border-color:var(--red); color:var(--red-bright); }
+  .file-input-hidden{ position:absolute; width:1px; height:1px; opacity:0; overflow:hidden; }
+
+  .tt-note{
+    color:var(--dim);
+    font-size:0.8rem;
+    line-height:1.6;
+    max-width:640px;
+    padding-bottom:1.6rem;
+    border-bottom:1px solid var(--line);
+    margin-bottom:2rem;
+  }
+  .tt-note b{ color:var(--white); font-weight:500; }
+
+  .tt-grid-wrap{ overflow-x:auto; padding-bottom:1rem; }
+  .tt-grid{
+    display:grid;
+    grid-template-columns:64px repeat(5, minmax(108px, 1fr));
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+    min-width:640px;
+  }
+  .tt-cell-head{
+    background:var(--bg-panel);
+    padding:0.7rem 0.4rem;
+    text-align:center;
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.7rem;
+    letter-spacing:0.08em;
+    color:var(--dim);
+    text-transform:uppercase;
+  }
+  .tt-hour-label{
+    background:var(--bg-panel);
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.64rem;
+    color:var(--dimmer);
+    padding:2px 0.4rem 0;
+  }
+  .tt-hour-label.minor{ color:transparent; }
+  .tt-cell{
+    position:relative;
+    background:var(--bg-panel-2);
+    min-height:20px;
+    border:none;
+    cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:0.15rem;
+    transition:filter 0.15s ease;
+  }
+  .tt-cell.hour-start{ box-shadow:inset 0 1px 0 var(--line-strong); }
+  .tt-cell:hover{ filter:brightness(1.3); }
+  .tt-cell .cell-code{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.64rem;
+    font-weight:600;
+    text-align:center;
+    line-height:1.2;
+  }
+  .tt-cell .cell-plus{
+    color:var(--dimmer);
+    font-size:0.9rem;
+    opacity:0;
+    transition:opacity 0.15s ease;
+  }
+  .tt-cell:hover .cell-plus{ opacity:1; }
+  .tt-cell.has-topic .cell-plus{ display:none; }
+  .tt-cell .imported-dot{
+    position:absolute;
+    top:3px; right:3px;
+    width:5px; height:5px;
+    border-radius:50%;
+    background:var(--white);
+    opacity:0.7;
+  }
+
+  .tt-legend{
+    display:flex; flex-wrap:wrap; gap:0.9rem 1.6rem;
+    padding:1.6rem 0;
+  }
+  .tt-legend-item{ display:flex; align-items:center; gap:0.5rem; font-size:0.76rem; color:var(--dim); }
+  .tt-legend-dot{ width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+
+  .tt-imported-list{
+    padding:1.4rem 1.6rem;
+    background:var(--bg-panel);
+    border:1px solid var(--line);
+    border-left:2px solid var(--dim);
+    border-radius:2px;
+    margin-top:1.5rem;
+    display:none;
+  }
+  .tt-imported-list.has-items{ display:block; }
+  .tt-imported-list h4{
+    margin:0 0 0.8rem;
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.7rem;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--dim);
+  }
+  .tt-imported-list ul{ margin:0; padding-left:1.1rem; }
+  .tt-imported-list li{ font-size:0.82rem; color:var(--white); margin-bottom:0.4rem; }
+  .tt-imported-list .clear-imported{ margin-top:0.9rem; }
+
+  /* cell assign popover */
+  .cell-popover{
+    display:none;
+    position:fixed;
+    z-index:60;
+    background:var(--bg-panel);
+    border:1px solid var(--line-strong);
+    border-left:2px solid var(--red);
+    border-radius:2px;
+    padding:0.6rem;
+    min-width:210px;
+    max-width:260px;
+    max-height:70vh;
+    overflow-y:auto;
+    box-shadow:0 12px 28px rgba(0,0,0,0.55);
+  }
+  .cell-popover.is-open{ display:block; }
+  .cell-popover-duration{
+    display:block;
+    width:100%;
+    margin-bottom:0.5rem;
+    padding:0.5rem 0.5rem;
+    background:var(--bg);
+    border:1px solid var(--line-strong);
+    border-radius:2px;
+    color:var(--white);
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.76rem;
+  }
+  .cell-popover-label{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.62rem;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--dim);
+    padding:0.2rem 0.6rem 0.4rem;
+  }
+  .cell-popover-item{
+    display:flex;
+    align-items:center;
+    gap:0.6rem;
+    width:100%;
+    background:none;
+    border:none;
+    color:var(--white);
+    padding:0.55rem 0.6rem;
+    border-radius:2px;
+    font-size:0.82rem;
+    cursor:pointer;
+    text-align:left;
+  }
+  .cell-popover-item:hover{ background:rgba(255,255,255,0.06); }
+  .cell-popover-dot{ width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+  .cell-popover-clear{ color:var(--dimmer); border-top:1px solid var(--line); margin-top:0.3rem; padding-top:0.7rem; }
+
+  /* ==================== PAGE 2 : STUDY SESSION ==================== */
+  #page-study{ display:none; }
+
+  .study-nav{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:2.2rem 0 2rem;
+    border-bottom:1px solid var(--line);
+  }
+
+  .back-btn{
+    display:flex; align-items:center; gap:0.5rem;
+    background:none; border:none; cursor:pointer;
+    color:var(--dim); font-size:0.82rem;
+  }
+  .back-btn:hover{ color:var(--white); }
+  .back-btn svg{ width:14px; height:14px; }
+
+  .study-title{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.85rem;
+    letter-spacing:0.06em;
+    color:var(--white);
+    display:flex;
+    align-items:center;
+    gap:0.6rem;
+  }
+  .study-title .dot{ width:7px; height:7px; border-radius:50%; background:var(--red); }
+
+  .session-hero{
+    padding:3.4rem 0 1rem;
+    text-align:center;
+  }
+  .session-hero h2{
+    margin:0;
+    font-family:'Fraunces', serif;
+    font-weight:300;
+    font-style:italic;
+    color:var(--dim);
+    font-size:1rem;
+  }
+  .session-hero .topic-big{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:clamp(1.9rem, 4vw, 2.9rem);
+    margin-top:0.3rem;
+  }
+
+  .timers-row{
+    display:flex;
+    justify-content:center;
+    gap:3.4rem;
+    flex-wrap:wrap;
+    padding:3rem 0 1rem;
+  }
+
+  .timer-card{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:1.1rem;
+    width:240px;
+  }
+
+  .dial-label{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.68rem;
+    letter-spacing:0.2em;
+    text-transform:uppercase;
+    color:var(--dim);
+  }
+
+  .dial{
+    position:relative;
+    width:196px; height:196px;
+    border-radius:50%;
+    background:var(--bg-panel);
+    border:1px solid var(--line-strong);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .dial .ring{
+    position:absolute; inset:0; border-radius:50%;
+  }
+  .dial .ring svg{ width:100%; height:100%; transform:rotate(-90deg); }
+  .dial .ring circle{ fill:none; stroke-width:2; }
+  .dial .ring .track{ stroke:var(--line); }
+  .dial .ring .prog{ stroke:var(--red); stroke-linecap:round; transition:stroke-dashoffset 1s linear; }
+
+  .dial .face{
+    position:relative;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    z-index:1;
+  }
+  .dial .time{
+    font-family:'JetBrains Mono', monospace;
+    font-weight:600;
+    font-size:1.55rem;
+    color:var(--white);
+  }
+  .dial .caption{
+    margin-top:0.3rem;
+    font-size:0.6rem;
+    text-transform:uppercase;
+    letter-spacing:0.14em;
+    color:var(--dimmer);
+  }
+
+  .dial.active{ border-color:var(--red); box-shadow:0 0 0 1px var(--red), 0 0 30px var(--red-glow); }
+  .dial.active .time{ animation:pulse 2s ease-in-out infinite; }
+  @keyframes pulse{ 0%,100%{ opacity:1;} 50%{ opacity:0.65; } }
+  @media (prefers-reduced-motion:reduce){ .dial.active .time{ animation:none; } }
+
+  .toggle-btn{
+    border:1px solid var(--line-strong);
+    background:none;
+    color:var(--white);
+    border-radius:999px;
+    padding:0.65rem 1.5rem;
+    font-size:0.82rem;
+    letter-spacing:0.02em;
+    cursor:pointer;
+    min-width:150px;
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:500;
+    transition:all 0.2s ease;
+  }
+  .toggle-btn:hover{ border-color:var(--red); color:var(--red-bright); }
+  .toggle-btn.is-running{
+    background:var(--red);
+    border-color:var(--red);
+    color:var(--bg);
+  }
+  .toggle-btn.is-running:hover{ color:var(--bg); }
+
+  .reset-row{ text-align:center; padding:1rem 0 0; }
+  .link-btn{
+    background:none; border:none; cursor:pointer;
+    color:var(--dimmer);
+    font-size:0.76rem;
+    text-decoration:underline;
+    text-underline-offset:3px;
+  }
+  .link-btn:hover{ color:var(--red-bright); }
+
+  .goals-wrap{ padding:3.2rem 0 5rem; display:flex; justify-content:center; }
+  .goals-card{
+    width:100%;
+    max-width:640px;
+    background:var(--bg-panel);
+    border:1px solid var(--line);
+    border-left:2px solid var(--red);
+    border-radius:2px;
+    padding:1.8rem 2rem 2rem;
+  }
+  .goals-card label{
+    display:flex;
+    align-items:center;
+    gap:0.6rem;
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.7rem;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--red);
+    margin-bottom:1rem;
+  }
+  .goals-card textarea{
+    width:100%;
+    min-height:150px;
+    resize:vertical;
+    border:none;
+    background:transparent;
+    color:var(--white);
+    font-family:'Space Grotesk', sans-serif;
+    font-size:0.96rem;
+    line-height:1.7;
+    outline:none;
+  }
+  .goals-card textarea::placeholder{ color:var(--dimmer); }
+  .save-hint{ margin-top:0.6rem; font-size:0.68rem; color:var(--dimmer); height:1em; font-family:'JetBrains Mono', monospace; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- ===================== NAV ===================== -->
+  <div class="nav">
+    <div class="brand">
+      <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="16" cy="16" r="14.5" stroke="#ff4b26" stroke-width="1.4"/>
+        <path d="M16 8 V16 L21 19" stroke="#ff4b26" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="word">STUDY.<br><small>DESK &middot; WEEKLY TRACKER</small></span>
+    </div>
+    <div class="nav-index">
+      <div class="item"><b>01</b>pick a topic</div>
+      <div class="item"><b>02</b>run the clock</div>
+      <div class="item"><b>03</b>log your goals</div>
+    </div>
+    <div class="nav-right">
+      <button class="nav-link-btn" id="timetable-nav-btn" type="button">
+        <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="17" rx="1.5" stroke="currentColor" stroke-width="1.6"/><path d="M3 9h18M8 2v4M16 2v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        Timetable
+      </button>
+      <button class="reset-all-btn" id="reset-all-btn" type="button" title="Reset all topics" aria-label="Reset all topics">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 12a8 8 0 1 1-2.34-5.66" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M20 4v5h-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <div class="nav-dot">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="9" stroke="#0a0908" stroke-width="1.6"/>
+          <path d="M12 7v5l3.2 2" stroke="#0a0908" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== PAGE 1 : SELECT ===================== -->
+  <section id="page-select">
+
+    <div class="hero">
+      <div class="eyebrow-row">
+        <div class="rule"></div>
+        <span>Your subjects, your weekly goal</span>
+      </div>
+
+      <h1 class="headline">
+        <span class="bold">select</span><span class="thin">&nbsp;WHICH</span><br>
+        <span class="thin">topic&nbsp;</span><span class="accent">you'd like</span><br>
+        <span class="bold">TO STUDY</span>
+      </h1>
+
+      <div class="hero-lower">
+        <div class="badge">
+          <svg class="spin" viewBox="0 0 132 132" width="132" height="132">
+            <defs>
+              <path id="circlePath" d="M 66,66 m -50,0 a 50,50 0 1,1 100,0 a 50,50 0 1,1 -100,0"/>
+            </defs>
+            <circle cx="66" cy="66" r="50" fill="none" stroke="#ff4b26" stroke-width="1"/>
+            <text font-family="JetBrains Mono, monospace" font-size="9.3" letter-spacing="2.5" fill="#ff4b26">
+              <textPath href="#circlePath" startOffset="0%">
+                TEN HOURS A WEEK &middot; TEN HOURS A WEEK &middot;
+              </textPath>
+            </text>
+          </svg>
+          <svg class="center-ic" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);">
+            <circle cx="12" cy="12" r="10" stroke="#ff4b26" stroke-width="1.3"/>
+            <path d="M12 7v5l3.4 2.2" stroke="#ff4b26" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+        </div>
+
+        <div class="hero-copy">
+          <p>Every topic below gets its own ten-hour weekly clock, a break timer that pauses it, and a place to write what you're aiming to finish. Add or remove topics any time a new semester starts.</p>
+        </div>
+
+        <div class="hero-meta">
+          <div class="col">
+            <b>Subjects</b>
+            <span id="hero-subject-count">Loading&hellip;</span>
+            <div class="legend" id="hero-legend"></div>
+          </div>
+        </div>
+      </div>
+
+      <button class="see-below" id="see-below-btn" type="button">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 4v16M12 20l-6-6M12 20l6-6" stroke="#ff4b26" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        See all topics below
+      </button>
+    </div>
+
+    <div class="topics" id="topic-list"></div>
+
+    <p class="footer-note">Progress and goals are saved on this device, per topic.</p>
+  </section>
+
+  <!-- ===================== PAGE 2 : STUDY SESSION ===================== -->
+  <section id="page-study">
+    <div class="study-nav">
+      <button class="back-btn" id="back-btn" type="button">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M19 12H5M5 12l6-6M5 12l6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        All topics
+      </button>
+      <span class="study-title"><span class="dot"></span><span id="study-topic-label"></span></span>
+    </div>
+
+    <div class="session-hero">
+      <h2>this week's session &mdash;</h2>
+      <div class="topic-big" id="study-topic-big"></div>
+    </div>
+
+    <div class="timers-row">
+      <div class="timer-card">
+        <span class="dial-label">Study &middot; counts down</span>
+        <div class="dial" id="study-dial">
+          <div class="ring">
+            <svg viewBox="0 0 196 196">
+              <circle class="track" cx="98" cy="98" r="90"/>
+              <circle class="prog" id="study-ring-prog" cx="98" cy="98" r="90"/>
+            </svg>
+          </div>
+          <div class="face">
+            <span class="time" id="study-time">10:00:00</span>
+            <span class="caption">remaining</span>
+          </div>
+        </div>
+        <button class="toggle-btn" id="study-toggle" type="button">Start study</button>
+      </div>
+
+      <div class="timer-card">
+        <span class="dial-label">Break &middot; counts up</span>
+        <div class="dial" id="break-dial">
+          <div class="ring">
+            <svg viewBox="0 0 196 196">
+              <circle class="track" cx="98" cy="98" r="90"/>
+              <circle class="prog" id="break-ring-prog" cx="98" cy="98" r="90"/>
+            </svg>
+          </div>
+          <div class="face">
+            <span class="time" id="break-time">00:00:00</span>
+            <span class="caption">elapsed</span>
+          </div>
+        </div>
+        <button class="toggle-btn" id="break-toggle" type="button">Take a break</button>
+      </div>
+    </div>
+
+    <div class="reset-row">
+      <button class="link-btn" id="reset-week-btn" type="button">Reset this week's progress</button>
+    </div>
+
+    <div class="goals-wrap">
+      <div class="goals-card">
+        <label for="goals-box">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M4 20h16M4 20V4h10l6 6v10" stroke="#ff4b26" stroke-width="1.6"/></svg>
+          Goals for this session
+        </label>
+        <textarea id="goals-box" placeholder="What are you aiming to get through today? e.g. finish tutorial 4 exercises, review lecture 6 slides, start the assignment spec..."></textarea>
+        <div class="save-hint" id="save-hint">&nbsp;</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PAGE 3 : TIMETABLE ===================== -->
+  <section id="page-timetable">
+    <div class="study-nav">
+      <button class="back-btn" id="tt-back-btn" type="button">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M19 12H5M5 12l6-6M5 12l6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        All topics
+      </button>
+      <span class="study-title"><span class="dot"></span>Weekly timetable</span>
+    </div>
+
+    <div class="tt-toolbar">
+      <div class="tt-toolbar-actions">
+        <button class="tt-btn" id="tt-export-btn" type="button">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Export to Apple Calendar (.ics)
+        </button>
+        <label class="tt-btn" for="tt-import-input" style="cursor:pointer;">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 21V9m0 0l-4 4m4-4l4 4M5 3h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Import from Apple Calendar (.ics)
+        </label>
+        <input class="file-input-hidden" type="file" id="tt-import-input" accept=".ics,text/calendar">
+      </div>
+    </div>
+
+    <p class="tt-note">Click any square to assign a topic &mdash; you'll get to pick how long it runs, in 15-minute steps, so a class from 4:00 to 5:15 fits exactly. <b>Export</b> turns your grid into a downloadable calendar file &mdash; open it (or AirDrop it to your phone) and it drops straight into Apple Calendar as repeating weekly events. <b>Import</b> reads an .ics file you've exported from Apple Calendar and lays those events over this grid. Neither one updates live &mdash; re-export or re-import whenever something changes.</p>
+
+    <div class="tt-grid-wrap">
+      <div class="tt-grid" id="tt-grid"></div>
+    </div>
+
+    <div class="tt-legend" id="tt-legend"></div>
+
+    <div class="tt-imported-list" id="tt-imported-list">
+      <h4>From your imported Apple Calendar file</h4>
+      <ul id="tt-imported-ul"></ul>
+      <button class="link-btn clear-imported" id="tt-clear-imported">Clear imported events</button>
+    </div>
+
+    <div class="goals-wrap" style="padding-top:2.4rem;">
+      <div class="goals-card">
+        <label for="important-events-box">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 8v5l3 2M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z" stroke="#ff4b26" stroke-width="1.6"/></svg>
+          Important events
+        </label>
+        <textarea id="important-events-box" placeholder="Upcoming exams, assignment deadlines, anything worth remembering... e.g. COMP10002 exam 14 Nov, MAST10010 assignment 3 due 22 Oct"></textarea>
+        <div class="save-hint" id="important-events-hint">&nbsp;</div>
+      </div>
+    </div>
+
+  </section>
+
+</div>
+
+<!-- ---------------- Add topic modal ---------------- -->
+<div class="modal-overlay" id="add-topic-overlay">
+  <div class="modal-card">
+    <h3>Add a new topic</h3>
+    <p class="hint">It'll show up on your topic list with its own ten-hour weekly clock.</p>
+    <div class="modal-field">
+      <label for="new-topic-code">Course code</label>
+      <input type="text" id="new-topic-code" placeholder="e.g. COMP30022" autocomplete="off">
+    </div>
+    <div class="modal-field">
+      <label for="new-topic-name">Course name</label>
+      <input type="text" id="new-topic-name" placeholder="e.g. IT Project" autocomplete="off">
+    </div>
+    <div class="modal-error" id="add-topic-error">&nbsp;</div>
+    <div class="modal-actions">
+      <button class="link-btn" id="add-topic-cancel" type="button">Cancel</button>
+      <button class="toggle-btn" id="add-topic-submit" type="button">Add topic</button>
+    </div>
+  </div>
+</div>
+
+<!-- ---------------- Cell assign popover ---------------- -->
+<div class="cell-popover" id="cell-popover"></div>
+
+<script>
+(function(){
+  // ---------- icon templates (reused for topics, cycled/randomized) ----------
+  const ICONS = [
+    `<svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle class="accent-stroke" cx="60" cy="16" r="7" stroke-width="1.6"/>
+      <circle class="accent-stroke" cx="30" cy="52" r="7" stroke-width="1.6"/>
+      <circle class="accent-stroke" cx="90" cy="52" r="7" stroke-width="1.6"/>
+      <circle class="accent-stroke" cx="14" cy="90" r="6" stroke-width="1.6"/>
+      <circle class="accent-stroke" cx="46" cy="90" r="6" stroke-width="1.6"/>
+      <circle class="accent-stroke" cx="74" cy="90" r="6" stroke-width="1.6"/>
+      <circle class="accent-stroke" cx="106" cy="90" r="6" stroke-width="1.6"/>
+      <path class="accent-stroke" d="M60 23 L30 45 M60 23 L90 45 M30 59 L14 84 M30 59 L46 84 M90 59 L74 84 M90 59 L106 84" stroke-width="1.2" opacity="0.85"/>
+    </svg>`,
+    `<svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path class="accent-stroke" d="M10 105 H110" stroke-width="1.2" opacity="0.6"/>
+      <path class="accent-stroke" d="M10 105 V15" stroke-width="1.2" opacity="0.6"/>
+      <circle class="accent-stroke" cx="28" cy="80" r="3.2" stroke-width="1.4"/>
+      <circle class="accent-stroke" cx="44" cy="60" r="3.2" stroke-width="1.4"/>
+      <circle class="accent-stroke" cx="58" cy="70" r="3.2" stroke-width="1.4"/>
+      <circle class="accent-stroke" cx="72" cy="42" r="3.2" stroke-width="1.4"/>
+      <circle class="accent-stroke" cx="88" cy="50" r="3.2" stroke-width="1.4"/>
+      <circle class="accent-stroke" cx="100" cy="26" r="3.2" stroke-width="1.4"/>
+      <path class="accent-stroke" d="M20 92 L102 24" stroke-width="1.4" stroke-dasharray="3 4"/>
+    </svg>`,
+    `<svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <ellipse class="accent-stroke" cx="60" cy="26" rx="34" ry="10" stroke-width="1.6"/>
+      <path class="accent-stroke" d="M26 26 V70 C26 76 41 81 60 81 C79 81 94 76 94 70 V26" stroke-width="1.6"/>
+      <path class="accent-stroke" d="M26 48 C26 54 41 59 60 59 C79 59 94 54 94 48" stroke-width="1.4" opacity="0.8"/>
+      <text x="60" y="100" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#ff4b26" opacity="0.85">SELECT *</text>
+    </svg>`,
+    `<svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path class="accent-stroke" d="M8 60 H112" stroke-width="1" opacity="0.5"/>
+      <path class="accent-stroke" d="M60 8 V112" stroke-width="1" opacity="0.5"/>
+      <path class="accent-stroke" d="M12 84 C32 20 48 20 60 60 C72 100 88 100 108 36" stroke-width="1.8"/>
+      <text x="60" y="30" text-anchor="middle" font-family="Fraunces, serif" font-style="italic" font-size="18" fill="#ff4b26">&#8747;</text>
+    </svg>`
+  ];
+
+  const DEFAULT_TOPICS = [
+    { code:'COMP10002', name:'Foundations of Algorithms', icon:0 },
+    { code:'COMP20008', name:'Elements of Data Processing', icon:1 },
+    { code:'INFO20003', name:'Database Systems', icon:2 },
+    { code:'MAST10010', name:'Applications of Calculus', icon:3 }
+  ];
+
+  const PALETTE = ['#ff4b26','#ffa94d','#ffd43b','#ff8fa3','#c084fc','#63e6be','#74c0fc','#e599f7'];
+
+  const STUDY_GOAL_SEC = 10 * 3600;
+  const DAYS = ['Mon','Tue','Wed','Thu','Fri'];
+  const DAY_FULL = { Mon:'Monday', Tue:'Tuesday', Wed:'Wednesday', Thu:'Thursday', Fri:'Friday' };
+  const DAY_ISO = { Mon:1, Tue:2, Wed:3, Thu:4, Fri:5 }; // getDay(): Sun=0..Sat=6
+  const DAY_START_MIN = 9 * 60;   // 9:00am
+  const DAY_END_MIN = 19 * 60;    // 7:00pm
+  const SLOT_STEP = 15;           // minutes
+  const SLOT_MINUTES = [];
+  for(let m = DAY_START_MIN; m < DAY_END_MIN; m += SLOT_STEP) SLOT_MINUTES.push(m);
+
+  let topics = [];
+  let timetable = {};       // "Mon-9": "COMP10002"
+  let importedEvents = {};  // "Mon-9": "Event summary" (grid-fitting imports)
+  let importedOverflow = []; // events that don't fit the grid, as text descriptions
+
+  // ---------- element refs ----------
+  const pageSelect = document.getElementById('page-select');
+  const pageStudy = document.getElementById('page-study');
+  const pageTimetable = document.getElementById('page-timetable');
+
+  const topicList = document.getElementById('topic-list');
+  const heroSubjectCount = document.getElementById('hero-subject-count');
+  const heroLegend = document.getElementById('hero-legend');
+  const backBtn = document.getElementById('back-btn');
+  const ttBackBtn = document.getElementById('tt-back-btn');
+  const timetableNavBtn = document.getElementById('timetable-nav-btn');
+  const studyTopicLabel = document.getElementById('study-topic-label');
+  const studyTopicBig = document.getElementById('study-topic-big');
+  const studyDial = document.getElementById('study-dial');
+  const breakDial = document.getElementById('break-dial');
+  const studyTimeEl = document.getElementById('study-time');
+  const breakTimeEl = document.getElementById('break-time');
+  const studyToggle = document.getElementById('study-toggle');
+  const breakToggle = document.getElementById('break-toggle');
+  const resetWeekBtn = document.getElementById('reset-week-btn');
+  const goalsBox = document.getElementById('goals-box');
+  const saveHint = document.getElementById('save-hint');
+  const studyRingProg = document.getElementById('study-ring-prog');
+  const breakRingProg = document.getElementById('break-ring-prog');
+  const seeBelowBtn = document.getElementById('see-below-btn');
+  const resetAllBtn = document.getElementById('reset-all-btn');
+
+  const addTopicOverlay = document.getElementById('add-topic-overlay');
+  const newTopicCodeInput = document.getElementById('new-topic-code');
+  const newTopicNameInput = document.getElementById('new-topic-name');
+  const addTopicError = document.getElementById('add-topic-error');
+  const addTopicSubmit = document.getElementById('add-topic-submit');
+  const addTopicCancel = document.getElementById('add-topic-cancel');
+
+  const ttGrid = document.getElementById('tt-grid');
+  const ttLegend = document.getElementById('tt-legend');
+  const ttExportBtn = document.getElementById('tt-export-btn');
+  const ttImportInput = document.getElementById('tt-import-input');
+  const ttImportedList = document.getElementById('tt-imported-list');
+  const ttImportedUl = document.getElementById('tt-imported-ul');
+  const ttClearImported = document.getElementById('tt-clear-imported');
+  const cellPopover = document.getElementById('cell-popover');
+  const importantEventsBox = document.getElementById('important-events-box');
+  const importantEventsHint = document.getElementById('important-events-hint');
+
+  // ---------- storage layer ----------
+  // Uses the Claude artifact storage API when available (persists across
+  // sessions inside claude.ai), and transparently falls back to the
+  // browser's own localStorage otherwise (file opened directly, or hosted
+  // on a normal site like GitHub Pages). Either way, data actually saves.
+  const hasArtifactStorage = (typeof window.storage !== 'undefined')
+    && window.storage
+    && typeof window.storage.get === 'function'
+    && typeof window.storage.set === 'function';
+
+  async function storageGetRaw(key){
+    if(hasArtifactStorage){
+      try{
+        const res = await window.storage.get(key, false);
+        return res ? res.value : null;
+      }catch(e){ return null; }
+    }
+    try{ return window.localStorage.getItem(key); }
+    catch(e){ return null; }
+  }
+
+  async function storageSetRaw(key, value){
+    if(hasArtifactStorage){
+      try{ await window.storage.set(key, value, false); return true; }
+      catch(e){ console.error('artifact storage set failed', e); return false; }
+    }
+    try{ window.localStorage.setItem(key, value); return true; }
+    catch(e){ console.error('localStorage set failed', e); return false; }
+  }
+
+  async function storageDeleteRaw(key){
+    if(hasArtifactStorage){
+      try{ await window.storage.delete(key, false); }
+      catch(e){ /* ignore */ }
+      return;
+    }
+    try{ window.localStorage.removeItem(key); } catch(e){ /* ignore */ }
+  }
+
+  const RING_R = 90;
+  const RING_C = 2 * Math.PI * RING_R;
+  [studyRingProg, breakRingProg].forEach(el => {
+    el.style.strokeDasharray = RING_C.toFixed(1);
+  });
+
+  let currentCode = null;
+  let state = null;
+  let tickHandle = null;
+  let saveDebounce = null;
+
+  function defaultState(){
+    return { studyRemaining: STUDY_GOAL_SEC, breakElapsed: 0, goals: '', active: null };
+  }
+
+  function fmt(totalSeconds){
+    const s = Math.max(0, Math.floor(totalSeconds));
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = s % 60;
+    const pad = n => String(n).padStart(2, '0');
+    return pad(h) + ':' + pad(m) + ':' + pad(sec);
+  }
+
+  // ---------- topics ----------
+  async function loadTopics(){
+    const raw = await storageGetRaw('topics-list');
+    if(raw){
+      try{
+        const parsed = JSON.parse(raw);
+        if(Array.isArray(parsed) && parsed.length) return parsed;
+      }catch(e){ /* fall through to defaults */ }
+    }
+    await storageSetRaw('topics-list', JSON.stringify(DEFAULT_TOPICS));
+    return DEFAULT_TOPICS.slice();
+  }
+
+  async function saveTopics(){
+    await storageSetRaw('topics-list', JSON.stringify(topics));
+  }
+
+  function colorForTopicCode(code){
+    const idx = topics.findIndex(t => t.code === code);
+    return PALETTE[(idx < 0 ? 0 : idx) % PALETTE.length];
+  }
+
+  // ---------- per-topic timer state ----------
+  async function loadState(code){
+    const raw = await storageGetRaw('topic:' + code);
+    if(raw){
+      try{
+        const parsed = JSON.parse(raw);
+        return Object.assign(defaultState(), parsed);
+      }catch(e){ /* corrupted entry, fall through to default */ }
+    }
+    return defaultState();
+  }
+
+  async function saveState(code, st, immediate){
+    const payload = JSON.stringify(st);
+    const doSave = () => storageSetRaw('topic:' + code, payload);
+    if(immediate){ await doSave(); return; }
+    clearTimeout(saveDebounce);
+    saveDebounce = setTimeout(doSave, 600);
+  }
+
+  // ---------- page 1: topic grid ----------
+  function buildList(){
+    topicList.innerHTML = '';
+    topics.forEach((t, i) => {
+      const idx = String(i + 1).padStart(2, '0');
+      const row = document.createElement('button');
+      row.className = 'topic-row';
+      row.type = 'button';
+      const iconSvg = ICONS[t.icon % ICONS.length] || ICONS[0];
+      row.innerHTML =
+        '<button class="topic-delete" type="button" title="Remove topic" aria-label="Remove topic" data-code="' + t.code + '">' +
+          '<svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M6 18L18 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' +
+        '</button>' +
+        '<div class="topic-text">' +
+          '<div class="topic-idx-row"><span class="topic-idx">' + idx + '</span><span class="topic-date">weekly &middot; 10h goal</span></div>' +
+          '<div class="topic-code">' + t.code + '</div>' +
+          '<div class="topic-name">' + t.name + '</div>' +
+          '<div class="topic-progress">' +
+            '<span class="track"><span class="fill" id="fill-' + t.code + '"></span></span>' +
+            '<span class="lbl" id="label-' + t.code + '">&mdash; / 10h</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="topic-visual">' + iconSvg + '<span class="view-ring">start</span></div>';
+      row.addEventListener('click', () => openTopic(t.code, t.name));
+      row.querySelector('.topic-delete').addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        deleteTopic(t.code);
+      });
+      topicList.appendChild(row);
+      refreshRowProgress(t.code);
+    });
+
+    const addRow = document.createElement('button');
+    addRow.className = 'add-topic-row';
+    addRow.type = 'button';
+    addRow.innerHTML =
+      '<span class="plus-circle"><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>' +
+      '<span>Add a topic for this semester</span>';
+    addRow.addEventListener('click', openAddTopicModal);
+    topicList.appendChild(addRow);
+
+    heroSubjectCount.textContent = topics.length
+      ? topics.map(t => t.code).join(', ')
+      : 'No topics yet';
+    heroLegend.innerHTML = topics.map((t, i) =>
+      '<i style="background:' + PALETTE[i % PALETTE.length] + '"></i>'
+    ).join('');
+  }
+
+  async function refreshRowProgress(code){
+    const st = await loadState(code);
+    const done = STUDY_GOAL_SEC - st.studyRemaining;
+    const hours = done / 3600;
+    const pct = Math.min(100, Math.max(0, (done / STUDY_GOAL_SEC) * 100));
+    const fill = document.getElementById('fill-' + code);
+    const label = document.getElementById('label-' + code);
+    if(fill) fill.style.width = pct.toFixed(1) + '%';
+    if(label) label.textContent = hours.toFixed(1) + ' / 10h';
+  }
+
+  function openAddTopicModal(){
+    newTopicCodeInput.value = '';
+    newTopicNameInput.value = '';
+    addTopicError.textContent = '\u00a0';
+    addTopicOverlay.classList.add('is-open');
+    setTimeout(() => newTopicCodeInput.focus(), 30);
+  }
+  function closeAddTopicModal(){
+    addTopicOverlay.classList.remove('is-open');
+  }
+
+  addTopicCancel.addEventListener('click', closeAddTopicModal);
+  addTopicOverlay.addEventListener('click', (ev) => {
+    if(ev.target === addTopicOverlay) closeAddTopicModal();
+  });
+
+  addTopicSubmit.addEventListener('click', async () => {
+    const code = newTopicCodeInput.value.trim().toUpperCase();
+    const name = newTopicNameInput.value.trim();
+    if(!code || !name){
+      addTopicError.textContent = 'Please fill in both fields.';
+      return;
+    }
+    if(topics.some(t => t.code === code)){
+      addTopicError.textContent = 'That course code is already on your list.';
+      return;
+    }
+    const icon = Math.floor(Math.random() * ICONS.length);
+    topics.push({ code, name, icon });
+    await saveTopics();
+    closeAddTopicModal();
+    buildList();
+    renderTimetable();
+  });
+
+  async function deleteTopic(code){
+    const t = topics.find(x => x.code === code);
+    const ok = confirm('Remove ' + code + (t ? ' (' + t.name + ')' : '') + ' from your topic list? Its saved progress and goals will be deleted too, and it will be cleared from your timetable.');
+    if(!ok) return;
+    topics = topics.filter(x => x.code !== code);
+    await saveTopics();
+    await storageDeleteRaw('topic:' + code);
+    Object.keys(timetable).forEach(key => {
+      if(timetable[key] === code) delete timetable[key];
+    });
+    await saveTimetable();
+    buildList();
+    renderTimetable();
+  }
+
+  async function openTopic(code, name){
+    currentCode = code;
+    state = await loadState(code);
+    studyTopicLabel.textContent = code;
+    studyTopicBig.textContent = name;
+    goalsBox.value = state.goals || '';
+    render();
+    showPage('study');
+    startTickLoop();
+  }
+
+  function closeTopic(){
+    stopTickLoop();
+    if(currentCode && state){ saveState(currentCode, state, true); }
+    refreshRowProgress(currentCode);
+    currentCode = null;
+    state = null;
+  }
+
+  function setRing(el, fraction){
+    const clamped = Math.min(1, Math.max(0, fraction));
+    const offset = RING_C * (1 - clamped);
+    el.style.strokeDashoffset = offset.toFixed(1);
+  }
+
+  function render(){
+    studyTimeEl.textContent = fmt(state.studyRemaining);
+    breakTimeEl.textContent = fmt(state.breakElapsed);
+
+    setRing(studyRingProg, state.studyRemaining / STUDY_GOAL_SEC);
+    setRing(breakRingProg, (state.breakElapsed % 3600) / 3600);
+
+    const studyRunning = state.active === 'study';
+    const breakRunning = state.active === 'break';
+
+    studyDial.classList.toggle('active', studyRunning);
+    breakDial.classList.toggle('active', breakRunning);
+
+    studyToggle.textContent = studyRunning ? 'Pause study' : 'Start study';
+    breakToggle.textContent = breakRunning ? 'End break' : 'Take a break';
+
+    studyToggle.classList.toggle('is-running', studyRunning);
+    breakToggle.classList.toggle('is-running', breakRunning);
+
+    if(state.studyRemaining <= 0 && state.active === 'study'){
+      state.active = null;
+    }
+  }
+
+  function startTickLoop(){
+    stopTickLoop();
+    tickHandle = setInterval(tick, 1000);
+  }
+  function stopTickLoop(){
+    if(tickHandle){ clearInterval(tickHandle); tickHandle = null; }
+  }
+
+  let ticksSinceSave = 0;
+  function tick(){
+    if(!state) return;
+    if(state.active === 'study'){
+      if(state.studyRemaining > 0) state.studyRemaining -= 1;
+      if(state.studyRemaining <= 0){ state.studyRemaining = 0; state.active = null; }
+    } else if(state.active === 'break'){
+      state.breakElapsed += 1;
+    }
+    render();
+    ticksSinceSave++;
+    if(ticksSinceSave >= 5){
+      ticksSinceSave = 0;
+      saveState(currentCode, state, false);
+    }
+  }
+
+  studyToggle.addEventListener('click', () => {
+    if(!state) return;
+    state.active = (state.active === 'study') ? null : 'study';
+    render();
+    saveState(currentCode, state, true);
+  });
+
+  breakToggle.addEventListener('click', () => {
+    if(!state) return;
+    state.active = (state.active === 'break') ? null : 'break';
+    render();
+    saveState(currentCode, state, true);
+  });
+
+  resetWeekBtn.addEventListener('click', () => {
+    if(!state) return;
+    const ok = confirm('Reset study and break timers for ' + currentCode + ' back to 10:00:00 and 00:00:00? Your goals text will be kept.');
+    if(!ok) return;
+    state.studyRemaining = STUDY_GOAL_SEC;
+    state.breakElapsed = 0;
+    state.active = null;
+    render();
+    saveState(currentCode, state, true);
+  });
+
+  goalsBox.addEventListener('input', () => {
+    if(!state) return;
+    state.goals = goalsBox.value;
+    saveHint.textContent = 'saving...';
+    clearTimeout(saveDebounce);
+    saveDebounce = setTimeout(async () => {
+      await saveState(currentCode, state, true);
+      saveHint.textContent = 'saved';
+      setTimeout(() => { if(saveHint.textContent === 'saved') saveHint.textContent = ''; }, 1500);
+    }, 600);
+  });
+
+  seeBelowBtn.addEventListener('click', () => {
+    topicList.scrollIntoView({ behavior:'smooth', block:'start' });
+  });
+
+  resetAllBtn.addEventListener('click', async () => {
+    const ok = confirm('Reset ALL topics back to 10:00:00 study, 00:00:00 break, and clear all goals text? This cannot be undone.');
+    if(!ok) return;
+    for(const t of topics){
+      const fresh = defaultState();
+      await storageSetRaw('topic:' + t.code, JSON.stringify(fresh));
+      if(currentCode === t.code){
+        state = fresh;
+        goalsBox.value = '';
+        render();
+      }
+    }
+    topics.forEach(t => refreshRowProgress(t.code));
+  });
+
+  // ---------- page navigation ----------
+  function showPage(target){
+    if(currentCode && target !== 'study'){
+      closeTopic();
+    }
+    pageSelect.style.display = target === 'select' ? 'block' : 'none';
+    pageStudy.style.display = target === 'study' ? 'block' : 'none';
+    pageTimetable.style.display = target === 'timetable' ? 'block' : 'none';
+    timetableNavBtn.classList.toggle('is-active', target === 'timetable');
+    window.scrollTo(0, 0);
+    if(target === 'timetable'){
+      renderTimetable();
+      loadImportantEvents().then(text => { importantEventsBox.value = text; });
+    }
+    if(target === 'select') buildList();
+  }
+
+  backBtn.addEventListener('click', () => showPage('select'));
+  ttBackBtn.addEventListener('click', () => showPage('select'));
+  timetableNavBtn.addEventListener('click', () => showPage('timetable'));
+
+  window.addEventListener('beforeunload', () => {
+    if(currentCode && state){ saveState(currentCode, state, true); }
+  });
+
+  // ---------- timetable ----------
+  async function loadTimetable(){
+    const raw = await storageGetRaw('timetable');
+    if(raw){
+      try{ return JSON.parse(raw); }catch(e){ /* fall through */ }
+    }
+    return {};
+  }
+  async function saveTimetable(){
+    await storageSetRaw('timetable', JSON.stringify(timetable));
+  }
+
+  async function loadImported(){
+    const raw = await storageGetRaw('imported-events');
+    if(raw){
+      try{
+        const parsed = JSON.parse(raw);
+        return { grid: parsed.grid || {}, overflow: parsed.overflow || [] };
+      }catch(e){ /* fall through */ }
+    }
+    return { grid: {}, overflow: [] };
+  }
+  async function saveImported(){
+    await storageSetRaw('imported-events', JSON.stringify({ grid: importedEvents, overflow: importedOverflow }));
+  }
+
+  function cellKey(day, minutes){ return day + '-' + minutes; }
+
+  function fmtSlotLabel(minutes){
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    const h12 = h % 12 === 0 ? 12 : h % 12;
+    const suffix = h < 12 ? 'am' : 'pm';
+    return m === 0 ? (h12 + suffix) : (h12 + ':' + String(m).padStart(2,'0') + suffix);
+  }
+
+  function isRunStart(day, minutes){
+    const code = timetable[cellKey(day, minutes)];
+    if(!code) return false;
+    const prev = timetable[cellKey(day, minutes - SLOT_STEP)];
+    return prev !== code;
+  }
+
+  function renderTimetable(){
+    ttGrid.innerHTML = '';
+    ttGrid.style.gridTemplateRows = '';
+    ttGrid.appendChild(document.createElement('div')); // corner spacer
+    DAYS.forEach(d => {
+      const head = document.createElement('div');
+      head.className = 'tt-cell-head';
+      head.textContent = d;
+      ttGrid.appendChild(head);
+    });
+
+    SLOT_MINUTES.forEach(minutes => {
+      const isHourMark = minutes % 60 === 0;
+      const hourLabel = document.createElement('div');
+      hourLabel.className = 'tt-hour-label' + (isHourMark ? '' : ' minor');
+      hourLabel.textContent = isHourMark ? fmtSlotLabel(minutes) : '\u00b7';
+      ttGrid.appendChild(hourLabel);
+
+      DAYS.forEach(d => {
+        const key = cellKey(d, minutes);
+        const code = timetable[key];
+        const cell = document.createElement('button');
+        cell.type = 'button';
+        cell.className = 'tt-cell' + (code ? ' has-topic' : '') + (isHourMark ? ' hour-start' : '');
+        if(code){
+          cell.style.background = colorForTopicCode(code) + '26';
+          cell.style.boxShadow = 'inset 0 0 0 1px ' + colorForTopicCode(code) + '80';
+          if(isRunStart(d, minutes)){
+            cell.innerHTML = '<span class="cell-code" style="color:' + colorForTopicCode(code) + '">' + code + '</span>';
+          }
+        } else {
+          cell.innerHTML = '<span class="cell-plus">+</span>';
+        }
+        if(importedEvents[key]){
+          const dot = document.createElement('span');
+          dot.className = 'imported-dot';
+          dot.title = 'From imported Apple Calendar: ' + importedEvents[key];
+          cell.appendChild(dot);
+        }
+        cell.addEventListener('click', (ev) => openCellPopover(ev, d, minutes));
+        ttGrid.appendChild(cell);
+      });
+    });
+
+    ttLegend.innerHTML = topics.map(t =>
+      '<span class="tt-legend-item"><span class="tt-legend-dot" style="background:' + colorForTopicCode(t.code) + '"></span>' + t.code + '</span>'
+    ).join('');
+
+    renderImportedList();
+  }
+
+  function renderImportedList(){
+    if(importedOverflow.length){
+      ttImportedList.classList.add('has-items');
+      ttImportedUl.innerHTML = importedOverflow.map(e => '<li>' + e + '</li>').join('');
+    } else {
+      ttImportedList.classList.remove('has-items');
+      ttImportedUl.innerHTML = '';
+    }
+  }
+
+  // ---------- important events notes ----------
+  let importantEventsSaveDebounce = null;
+  async function loadImportantEvents(){
+    const raw = await storageGetRaw('important-events');
+    return raw || '';
+  }
+  async function saveImportantEvents(text){
+    await storageSetRaw('important-events', text);
+  }
+  importantEventsBox.addEventListener('input', () => {
+    importantEventsHint.textContent = 'saving...';
+    clearTimeout(importantEventsSaveDebounce);
+    importantEventsSaveDebounce = setTimeout(async () => {
+      await saveImportantEvents(importantEventsBox.value);
+      importantEventsHint.textContent = 'saved';
+      setTimeout(() => { if(importantEventsHint.textContent === 'saved') importantEventsHint.textContent = ''; }, 1500);
+    }, 600);
+  });
+
+  function openCellPopover(ev, day, minutes){
+    ev.stopPropagation();
+    const key = cellKey(day, minutes);
+    cellPopover.innerHTML = '';
+
+    const maxMinutesAvailable = DAY_END_MIN - minutes;
+    const durationOptions = [];
+    for(let d = SLOT_STEP; d <= Math.min(maxMinutesAvailable, 240); d += SLOT_STEP) durationOptions.push(d);
+
+    const durLabel = document.createElement('div');
+    durLabel.className = 'cell-popover-label';
+    durLabel.textContent = 'Duration';
+    cellPopover.appendChild(durLabel);
+
+    const durSelect = document.createElement('select');
+    durSelect.className = 'cell-popover-duration';
+    durationOptions.forEach(d => {
+      const opt = document.createElement('option');
+      opt.value = String(d);
+      const h = Math.floor(d/60), m = d%60;
+      opt.textContent = h ? (h + 'h' + (m ? ' ' + m + 'm' : '')) : (m + 'm');
+      if(d === 60) opt.selected = true;
+      durSelect.appendChild(opt);
+    });
+    cellPopover.appendChild(durSelect);
+
+    const topicsLabel = document.createElement('div');
+    topicsLabel.className = 'cell-popover-label';
+    topicsLabel.textContent = 'Assign topic';
+    cellPopover.appendChild(topicsLabel);
+
+    topics.forEach(t => {
+      const item = document.createElement('button');
+      item.type = 'button';
+      item.className = 'cell-popover-item';
+      item.innerHTML = '<span class="cell-popover-dot" style="background:' + colorForTopicCode(t.code) + '"></span>' + t.code;
+      item.addEventListener('click', async () => {
+        const duration = parseInt(durSelect.value, 10);
+        const count = Math.round(duration / SLOT_STEP);
+        for(let i = 0; i < count; i++){
+          const slotMin = minutes + i * SLOT_STEP;
+          if(slotMin >= DAY_END_MIN) break;
+          timetable[cellKey(day, slotMin)] = t.code;
+        }
+        await saveTimetable();
+        closeCellPopover();
+        renderTimetable();
+      });
+      cellPopover.appendChild(item);
+    });
+
+    const clearItem = document.createElement('button');
+    clearItem.type = 'button';
+    clearItem.className = 'cell-popover-item cell-popover-clear';
+    clearItem.textContent = timetable[key] ? 'Clear this block' : 'Clear this slot';
+    clearItem.addEventListener('click', async () => {
+      const codeHere = timetable[key];
+      if(codeHere){
+        // clear the whole contiguous run this slot belongs to
+        let m = minutes;
+        while(timetable[cellKey(day, m)] === codeHere){ delete timetable[cellKey(day, m)]; m -= SLOT_STEP; }
+        m = minutes + SLOT_STEP;
+        while(timetable[cellKey(day, m)] === codeHere){ delete timetable[cellKey(day, m)]; m += SLOT_STEP; }
+      }
+      await saveTimetable();
+      closeCellPopover();
+      renderTimetable();
+    });
+    cellPopover.appendChild(clearItem);
+
+    const rect = ev.currentTarget.getBoundingClientRect();
+    cellPopover.style.left = Math.min(rect.left, window.innerWidth - 270) + 'px';
+    const top = rect.bottom + 6;
+    const maxTop = window.innerHeight - 340;
+    cellPopover.style.top = Math.max(8, Math.min(top, maxTop)) + 'px';
+    cellPopover.classList.add('is-open');
+  }
+  function closeCellPopover(){
+    cellPopover.classList.remove('is-open');
+  }
+  document.addEventListener('click', (ev) => {
+    if(cellPopover.classList.contains('is-open') && !cellPopover.contains(ev.target)){
+      closeCellPopover();
+    }
+  });
+
+  // ---------- ICS export ----------
+  function pad2(n){ return String(n).padStart(2, '0'); }
+
+  function nextDateForWeekday(targetDow){
+    // targetDow: 1=Mon .. 5=Fri
+    const now = new Date();
+    const cur = now.getDay(); // 0=Sun..6=Sat
+    let diff = targetDow - cur;
+    if(diff < 0) diff += 7;
+    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diff);
+    return d;
+  }
+
+  function icsDateTime(date, minutesFromMidnight){
+    const h = Math.floor(minutesFromMidnight / 60);
+    const mi = minutesFromMidnight % 60;
+    return date.getFullYear() + pad2(date.getMonth()+1) + pad2(date.getDate()) + 'T' + pad2(h) + pad2(mi) + '00';
+  }
+
+  function icsEscape(text){
+    return String(text).replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\n/g,'\\n');
+  }
+
+  function buildRunsFromTimetable(){
+    // groups contiguous same-code 15-min slots (per day) into single blocks
+    const runs = [];
+    DAYS.forEach(day => {
+      let run = null;
+      SLOT_MINUTES.concat([DAY_END_MIN]).forEach(minutes => {
+        const code = minutes < DAY_END_MIN ? timetable[cellKey(day, minutes)] : undefined;
+        if(run && code === run.code){
+          run.endMinutes = minutes + SLOT_STEP;
+        } else {
+          if(run) runs.push(run);
+          run = code ? { day, code, startMinutes: minutes, endMinutes: minutes + SLOT_STEP } : null;
+        }
+      });
+    });
+    return runs;
+  }
+
+  function exportIcs(){
+    const runs = buildRunsFromTimetable();
+    if(!runs.length){
+      alert('Your timetable is empty. Click some squares in the grid first, then export.');
+      return;
+    }
+    const lines = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Study Desk//Weekly Timetable//EN','CALSCALE:GREGORIAN'];
+    const stamp = new Date();
+    const dtstamp = stamp.getUTCFullYear() + pad2(stamp.getUTCMonth()+1) + pad2(stamp.getUTCDate()) + 'T' + pad2(stamp.getUTCHours()) + pad2(stamp.getUTCMinutes()) + pad2(stamp.getUTCSeconds()) + 'Z';
+
+    runs.forEach((run, i) => {
+      const topic = topics.find(t => t.code === run.code);
+      const title = topic ? (topic.code + ' \u2014 ' + topic.name) : run.code;
+      const dow = DAY_ISO[run.day];
+      const startDate = nextDateForWeekday(dow);
+      const dtstart = icsDateTime(startDate, run.startMinutes);
+      const dtend = icsDateTime(startDate, run.endMinutes);
+      lines.push('BEGIN:VEVENT');
+      lines.push('UID:studydesk-' + run.day + '-' + run.startMinutes + '-' + run.code + '-' + i + '@study-desk');
+      lines.push('DTSTAMP:' + dtstamp);
+      lines.push('DTSTART:' + dtstart);
+      lines.push('DTEND:' + dtend);
+      lines.push('RRULE:FREQ=WEEKLY;COUNT=13');
+      lines.push('SUMMARY:' + icsEscape(title));
+      lines.push('END:VEVENT');
+    });
+
+    lines.push('END:VCALENDAR');
+    const icsText = lines.join('\r\n');
+    const blob = new Blob([icsText], { type:'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'study-desk-timetable.ics';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+  }
+
+  ttExportBtn.addEventListener('click', exportIcs);
+
+  // ---------- ICS import ----------
+  const BYDAY_MAP = { MO:'Mon', TU:'Tue', WE:'Wed', TH:'Thu', FR:'Fri', SA:'Sat', SU:'Sun' };
+
+  function parseIcsDate(raw){
+    if(!raw) return null;
+    const s = raw.trim();
+    const isUtc = s.endsWith('Z');
+    const clean = s.replace('Z','');
+    const y = parseInt(clean.slice(0,4),10);
+    const mo = parseInt(clean.slice(4,6),10) - 1;
+    const d = parseInt(clean.slice(6,8),10);
+    if(clean.length <= 8){
+      return { date: new Date(y, mo, d), allDay:true };
+    }
+    const h = parseInt(clean.slice(9,11),10);
+    const mi = parseInt(clean.slice(11,13),10);
+    const se = parseInt(clean.slice(13,15),10) || 0;
+    const date = isUtc ? new Date(Date.UTC(y,mo,d,h,mi,se)) : new Date(y,mo,d,h,mi,se);
+    return { date, allDay:false };
+  }
+
+  function unescapeIcsText(s){
+    return (s || '').replace(/\\n/gi,' ').replace(/\\,/g,',').replace(/\\;/g,';').replace(/\\\\/g,'\\').trim();
+  }
+
+  function dayAbbrevFromDate(date){
+    const map = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    return map[date.getDay()];
+  }
+
+  function parseIcsFile(text){
+    const grid = {};
+    const overflow = [];
+    const veventRe = /BEGIN:VEVENT([\s\S]*?)END:VEVENT/g;
+    let m;
+    let count = 0;
+    while((m = veventRe.exec(text)) && count < 400){
+      count++;
+      const block = m[1];
+      const summaryMatch = block.match(/SUMMARY:(.*)/);
+      const dtstartMatch = block.match(/DTSTART[^:\r\n]*:([0-9TZ]+)/);
+      const dtendMatch = block.match(/DTEND[^:\r\n]*:([0-9TZ]+)/);
+      const rruleMatch = block.match(/RRULE:([^\r\n]*)/);
+
+      const summary = unescapeIcsText(summaryMatch ? summaryMatch[1] : 'Untitled event');
+      const startInfo = dtstartMatch ? parseIcsDate(dtstartMatch[1]) : null;
+      if(!startInfo || startInfo.allDay){
+        overflow.push(summary + ' (all-day or undated \u2014 not shown on the hourly grid)');
+        continue;
+      }
+      const endInfo = dtendMatch ? parseIcsDate(dtendMatch[1]) : null;
+
+      let dayAbbrevs = [dayAbbrevFromDate(startInfo.date)];
+      if(rruleMatch){
+        const bydayMatch = rruleMatch[1].match(/BYDAY=([A-Z,]+)/);
+        if(bydayMatch){
+          dayAbbrevs = bydayMatch[1].split(',').map(code => BYDAY_MAP[code]).filter(Boolean);
+        }
+      }
+
+      const startMinutes = startInfo.date.getHours() * 60 + startInfo.date.getMinutes();
+      const roundedStart = Math.floor(startMinutes / SLOT_STEP) * SLOT_STEP;
+      let endMinutes = endInfo ? (endInfo.date.getHours() * 60 + endInfo.date.getMinutes()) : (startMinutes + 60);
+      const roundedEnd = Math.max(roundedStart + SLOT_STEP, Math.ceil(endMinutes / SLOT_STEP) * SLOT_STEP);
+
+      let placedAny = false;
+      dayAbbrevs.forEach(dayAb => {
+        if(!DAYS.includes(dayAb)) return;
+        for(let mm = roundedStart; mm < roundedEnd; mm += SLOT_STEP){
+          if(mm < DAY_START_MIN || mm >= DAY_END_MIN) continue;
+          grid[cellKey(dayAb, mm)] = summary;
+          placedAny = true;
+        }
+      });
+
+      if(!placedAny){
+        const timeStr = pad2(startInfo.date.getHours()) + ':' + pad2(startInfo.date.getMinutes());
+        overflow.push(summary + ' \u2014 ' + (dayAbbrevs.map(a => DAY_FULL[a] || a).join('/') || 'unknown day') + ' ' + timeStr + ' (outside your 9am\u20137pm Mon\u2013Fri grid)');
+      }
+    }
+    return { grid, overflow };
+  }
+
+  ttImportInput.addEventListener('change', async (ev) => {
+    const file = ev.target.files && ev.target.files[0];
+    if(!file) return;
+    try{
+      const text = await file.text();
+      const result = parseIcsFile(text);
+      importedEvents = result.grid;
+      importedOverflow = result.overflow;
+      await saveImported();
+      renderTimetable();
+      const total = Object.keys(importedEvents).length + importedOverflow.length;
+      alert(total ? ('Imported ' + total + ' event slot(s) from your calendar file.') : 'No events found in that file.');
+    }catch(e){
+      console.error(e);
+      alert('Could not read that file. Make sure it\u2019s a .ics calendar export.');
+    }
+    ttImportInput.value = '';
+  });
+
+  ttClearImported.addEventListener('click', async () => {
+    importedEvents = {};
+    importedOverflow = [];
+    await saveImported();
+    renderTimetable();
+  });
+
+  // ---------- boot ----------
+  async function init(){
+    topics = await loadTopics();
+    timetable = await loadTimetable();
+    const imported = await loadImported();
+    importedEvents = imported.grid;
+    importedOverflow = imported.overflow;
+    buildList();
+  }
+  init();
+})();
+</script>
+
+</body>
+</html>
